@@ -38,41 +38,51 @@
   </div>
 
   <script>
+    // 已自動填入你的 Apps Script 部署 API 網址
+    const GAS_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnS-LwhrCv9wJ95_kiuoVDAWpVB7k-XXgF7tZiC3O2ePKCMLsFuxB8VZX1-JwuVFVZ4s49bGEkxK53ZER2_sDAlTXZDC8n2QANXqaXk8PFli3GsjDLjY02F4K1Q_XMKdiWv2e6CubDQa04ma77MNvfxanVp2WYuIWdy7EtQ-rf5eaMau6efHbGXInmoz0KqlhJFCXsAE_PjVi5b6nSVw4XOozLrPTYpCJhAD0Dn245IGBfynjyATrNJMoKHo6j7IjEs_imuyAyO1r3Xpe_IEwm2abMEhRg&lib=M6GdG6v223W4XhStTXgOA4CZ9_ecy5sDx";
+
     let player = "";
     let rounds = [];
     let selectedId = null;
 
-    function initGame() {
+    async function callApi(action, extraData = {}) {
+      try {
+        let res = await fetch(GAS_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: action, ...extraData })
+        });
+        let data = await res.json();
+        return data;
+      } catch (err) {
+        return { ok: false, error: err.toString() };
+      }
+    }
+
+    async function initGame() {
       let statusEl = document.getElementById('statusMsg');
       if(statusEl) statusEl.innerText = "連線載入中...";
-      google.script.run
-        .withSuccessHandler(onResponse)
-        .withFailureHandler(onError)
-        .api({ action: 'load' });
+      let res = await callApi('load');
+      onResponse(res);
     }
 
-    function newGame() {
-      google.script.run
-        .withSuccessHandler(onResponse)
-        .withFailureHandler(onError)
-        .api({ action: 'new' });
+    async function newGame() {
+      let res = await callApi('new');
+      onResponse(res);
     }
 
-    function makeGuess() {
+    async function makeGuess() {
       let val = document.getElementById('guessInput').value;
       if (!val || val.length !== 4) {
         document.getElementById('gameMsg').innerText = "請輸入剛好 4 位數字！";
         return;
       }
-      google.script.run
-        .withSuccessHandler(onResponse)
-        .withFailureHandler(onError)
-        .api({ action: 'guess', gameId: selectedId, value: val });
+      let res = await callApi('guess', { gameId: selectedId, value: val });
       document.getElementById('guessInput').value = "";
+      onResponse(res);
     }
 
     function onResponse(res) {
-      if (res.ok) {
+      if (res && res.ok) {
         player = res.code;
         rounds = res.rounds || [];
         const requested = res.selectedId || selectedId;
@@ -89,7 +99,7 @@
         if (msgEl) msgEl.innerText = res.message || "";
       } else {
         let statusEl = document.getElementById('statusMsg');
-        if (statusEl) statusEl.innerText = "錯誤：" + res.error;
+        if (statusEl) statusEl.innerText = "錯誤：" + (res ? res.error : "連線失敗");
       }
     }
 
