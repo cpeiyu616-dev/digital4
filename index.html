@@ -1,1 +1,307 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>幾A幾B大挑戰・個人雲端版</title><style>
+    :root {
+      --bg-color: #0b0f19;
+      --panel-bg: rgba(17, 24, 39, 0.85);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --danger: #ef4444;
+      --primary: #3b82f6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    main { width: 100%; max-width: 900px; }
+    .eyebrow { margin: 0 0 8px; font-size: 13px; letter-spacing: .12em; color: var(--text-muted); text-align: center; }
+    h1 { font-size: clamp(26px, 5vw, 36px); line-height: 1.25; margin: 0 0 8px; text-align: center; }
+    .intro { margin: 0 0 20px; color: var(--text-muted); text-align: center; font-size: 14px; }
+    .card {
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      margin-bottom: 20px;
+    }
+    .gate { text-align: center; max-width: 600px; margin: 0 auto; }
+    label { display: block; font-weight: 600; margin-bottom: 10px; text-align: left; }
+    input[type="text"] {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: white;
+      font-size: 24px;
+      text-align: center;
+      outline: none;
+      letter-spacing: 4px;
+    }
+    input[type="text"]:focus { border-color: var(--accent); }
+    button { font: inherit; font-weight: 650; border-radius: 8px; padding: 12px 18px; cursor: pointer; min-height: 46px; border: none; color: white; transition: background .15s; }
+    .submit { width: 100%; margin-top: 14px; background: var(--accent); }
+    .submit:hover { background: var(--accent-hover); }
+    .reset { background: #4b5563; color: white; width: 100%; margin-top: 10px; }
+    .reset:hover { background: #374151; }
+    button:disabled { opacity: .5; cursor: default; }
+    #feedback { display: flex; align-items: center; justify-content: center; text-align: center; min-height: 60px; border-radius: 8px; background: rgba(0,0,0,0.3); padding: 12px; margin: 15px 0; color: var(--text-main); font-size: 16px; font-weight: 600; border: 1px solid var(--border-color); }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 20px; align-items: start; }
+    h2 { margin: 0 0 14px; font-size: 18px; }
+    .stats { display: flex; gap: 12px; justify-content: center; margin-bottom: 15px; color: var(--text-muted); font-size: 14px; }
+    .status { padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; background: rgba(59, 130, 246, 0.1); font-size: 14px; margin-bottom: 20px; text-align: center; color: #93c5fd; }
+    .status[data-tone=error] { background: rgba(239, 68, 68, 0.1); color: #f87171; border-color: var(--danger); }
+    .tag { padding: 6px 12px; border-radius: 6px; background: rgba(255,255,255,0.05); font-size: 13px; display: inline-block; margin-bottom: 15px; }
+    .notice { padding: 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 20px; text-align: left; }
+    .table-wrap { overflow-y: auto; max-height: 180px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--border-color); padding: 8px; }
+    table { border-collapse: collapse; width: 100%; font-size: 14px; text-align: left; font-family: monospace; }
+    th, td { padding: 6px 8px; border-bottom: 1px solid var(--border-color); }
+    th { font-weight: 600; background: rgba(255,255,255,0.05); }
+    details { border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 8px; background: rgba(0,0,0,0.2); overflow: hidden; }
+    summary { padding: 10px 14px; cursor: pointer; font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; }
+    summary:hover { background: rgba(255,255,255,0.03); }
+    .round-content { padding: 12px 14px; border-top: 1px solid var(--border-color); }
+    .round-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+    .debug-panel { background: rgba(239, 68, 68, 0.1); border: 1px dashed var(--danger); border-radius: 8px; padding: 12px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center; }
+    .debug-secret { font-family: monospace; font-size: 18px; color: #f87171; font-weight: bold; letter-spacing: 2px; }
+    .hidden { display: none !important; }
+    @media(max-width: 768px) { .layout { grid-template-columns: 1fr; } }
+  </style></head><body>
+<main>
+  <p class="eyebrow">數位科技概論 · 版本四 · 幾A幾B個人雲端版</p>
+  <h1>你猜，雲端記得。</h1>
+  <p class="intro">以 Google 帳號授權，在你的雲端硬碟建立專屬私人試算表進行幾A幾B挑戰。</p>
+  
+  <p id="cloud-status" class="status" role="status">正在確認 Google 帳號與存檔…</p>
+  
+  <section id="gate" class="card gate">
+    <h2>建立你的個人遊戲存檔</h2>
+    <p class="notice">首次使用需授權。點擊下方按鈕後，程式會在你目前帳號的雲端硬碟建立一份<b>「幾A幾B版本四｜我的遊戲存檔」</b>試算表，記錄你的每局答案與猜測歷程。資料完全私密，不會自動分享給老師或其他人。</p>
+    <button id="create" class="submit" type="button" disabled>建立我的遊戲存檔</button>
+    <button id="check" class="reset" type="button">重新確認帳號與存檔</button>
+  </section>
 
+  <section id="app" class="hidden">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+      <span id="player" class="tag">Google 帳號：確認中...</span>
+      <div style="display:flex; gap:10px;">
+        <button id="reload" class="reset" style="margin:0; padding:8px 14px; min-height:auto;" type="button">重新讀取</button>
+        <a id="sheet-link" target="_blank" rel="noopener noreferrer" style="color:var(--primary); font-size:14px; text-decoration:none; align-self:center;" hidden>開啟我的試算表 ↗</a>
+      </div>
+    </div>
+
+    <div class="stats"><span id="total">共 0 局</span><span id="wins">已通關 0 局</span></div>
+
+    <div class="layout">
+      <section class="card" aria-label="遊戲操作面板" style="margin-bottom:0;">
+        <h2 id="round-title">還沒有遊戲</h2>
+        <form id="guess-form" novalidate>
+          <label for="guess">輸入 4 位不重複數字</label>
+          <input id="guess" type="text" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="0123" disabled>
+          <button id="submit" class="submit" type="submit" disabled>送出猜測並自動存檔</button>
+        </form>
+        <p id="feedback" role="status">請先開新局。</p>
+        <button id="new" class="reset" type="button">開新局 (4位不重複數字)</button>
+
+        <div class="debug-panel">
+          <div>
+            <div style="font-size: 12px; color: var(--text-muted);">除錯模式（顯示本局正確答案）</div>
+            <span id="debugSecretDisplay" class="debug-secret">----</span>
+          </div>
+          <button class="submit" id="debugToggleBtn" type="button" style="width: auto; padding: 8px 16px; margin: 0; background: var(--danger);">開啟除錯</button>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="history-title" style="margin-bottom:0;">
+        <h2 id="history-title">雲端遊玩歷史</h2>
+        <div class="small" style="font-size:13px; color:var(--text-muted); margin-bottom:10px;">點擊歷程可切換局數繼續遊玩或查看。</div>
+        <div id="history" style="max-height: 380px; overflow-y: auto;"></div>
+      </section>
+    </div>
+  </section>
+</main>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const online = typeof google !== 'undefined' && google.script && google.script.run;
+let ready = false;
+let player = '', rounds = [], selectedId = null, busy = false, isDebugOn = false;
+
+function current() { return rounds.find(r => r.id === selectedId) || null; }
+function uid() { return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'req-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2); }
+
+function parseGuess(value) {
+  const text = String(value).trim();
+  if (!/^\d{4}$/.test(text)) throw new Error('格式錯誤：必須剛好 4 個數字！');
+  if (new Set(text.split('')).size !== 4) throw new Error('格式錯誤：4 個數字不能重複！');
+  return text;
+}
+
+function status(text, tone='') { $('cloud-status').textContent = text; $('cloud-status').dataset.tone = tone; }
+function make(tag, text, className) { const el = document.createElement(tag); if(text!==undefined)el.textContent=text; if(className)el.className=className; return el; }
+function time(iso) { return new Date(iso).toLocaleString('zh-TW',{hour12:false}); }
+
+function controls() {
+  const game = current();
+  $('guess').disabled = $('submit').disabled = busy || !online || !game || game.status !== 'playing';
+  $('new').disabled = busy || !online || !ready || rounds.length >= 50;
+  $('create').disabled = busy || !online || !player || ready;
+}
+
+function updateDebugUI() {
+  const btn = $('debugToggleBtn');
+  const display = $('debugSecretDisplay');
+  const game = current();
+  if (isDebugOn) {
+    btn.textContent = "關閉除錯";
+    btn.style.background = "#4b5563";
+    display.textContent = (game && game.answer) ? game.answer : "----";
+  } else {
+    btn.textContent = "開啟除錯";
+    btn.style.background = "var(--danger)";
+    display.textContent = "----";
+  }
+}
+
+function renderHistory() {
+  const container = $('history');
+  container.replaceChildren();
+  if (!rounds.length) { container.append(make('p','尚無遊戲紀錄。','empty')); return; }
+  
+  [...rounds].reverse().forEach(game => {
+    const details = make('details');
+    if (game.id === selectedId) details.open = true;
+    
+    const summary = make('summary');
+    summary.innerHTML = `<span>第 ${game.number} 局 (${game.status === 'won' ? '已通關' : '進行中'})</span><span style="color:var(--text-muted);">猜測: ${game.guesses.length}次</span>`;
+    details.append(summary);
+
+    const box = make('div', undefined, 'round-content');
+    box.append(make('p', '開始：'+time(game.startedAt), 'round-meta'));
+    
+    const choose = make('button', game.id === selectedId ? '目前選取的局' : (game.status === 'won' ? '查看這一局' : '繼續這一局'), 'reset');
+    choose.style.margin = '0 0 10px 0';
+    choose.type = 'button';
+    choose.addEventListener('click', () => {
+      if (busy) return;
+      selectedId = game.id;
+      isDebugOn = false;
+      $('guess').value = '';
+      render();
+    });
+    box.append(choose);
+
+    if (game.guesses.length > 0) {
+      const wrap = make('div', undefined, 'table-wrap');
+      const table = make('table');
+      const thead = make('thead');
+      const tr = make('tr');
+      ['次序', '數字', '結果'].forEach(t => tr.append(make('th', t)));
+      thead.append(tr); table.append(thead);
+      
+      const tbody = make('tbody');
+      game.guesses.forEach(g => {
+        const row = make('tr');
+        [g.order, g.value, g.result].forEach(v => row.append(make('td', String(v))));
+        tbody.append(row);
+      });
+      table.append(tbody); wrap.append(table); box.append(wrap);
+    }
+    details.append(box);
+    container.append(details);
+  });
+}
+
+function render() {
+  $('gate').hidden = ready;
+  $('app').hidden = !ready;
+  $('player').textContent = player ? 'Google 帳號：' + player : '尚未確認 Google 帳號';
+  $('total').textContent = '共 ' + rounds.length + ' 局';
+  $('wins').textContent = '已通關 ' + rounds.filter(r => r.status === 'won').length + ' 局';
+  
+  const game = current();
+  $('round-title').textContent = game ? `正在遊玩：第 ${game.number} 局 [狀態: ${game.status === 'won' ? '已通關' : '進行中'}]` : '還沒有遊戲';
+  
+  if (!game) {
+    $('feedback').textContent = '請先點擊「開新局」開始挑戰！';
+  } else if (game.status === 'won') {
+    $('feedback').textContent = `恭喜答對！本局已通關 (答案: ${game.answer})`;
+  } else {
+    const last = game.guesses[game.guesses.length - 1];
+    $('feedback').textContent = last ? `上一次猜測：${last.value} → ${last.result}` : '請輸入 4 個不重複數字開始猜測！';
+  }
+  
+  updateDebugUI();
+  renderHistory();
+  controls();
+}
+
+function callServer(request) {
+  return new Promise((resolve, reject) => google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).api(request));
+}
+
+async function send(request) {
+  if (busy || !online) return;
+  busy = true; controls();
+  status(request.action === 'load' ? '正在讀取雲端資料…' : '正在處理並儲存…', 'busy');
+  try {
+    const response = await callServer(request);
+    if (!response || !response.ok) {
+      status(response && response.error ? response.error : '雲端回覆錯誤。', 'error');
+      return;
+    }
+    player = response.code;
+    ready = response.ready;
+    rounds = response.rounds;
+    const requested = response.selectedId || selectedId;
+    selectedId = rounds.some(r => r.id === requested) ? requested : ([...rounds].reverse().find(r => r.status === 'playing') || rounds[rounds.length - 1] || {}).id || null;
+    
+    if (response.sheetUrl) {
+      $('sheet-link').hidden = false;
+      $('sheet-link').href = response.sheetUrl;
+    }
+    if (request.action !== 'load') $('guess').value = '';
+    render();
+    status(response.message, response.conflict ? 'error' : '');
+  } catch (error) {
+    status('連線雲端失敗，請重新整理頁面。', 'error');
+  } finally {
+    busy = false; controls();
+  }
+}
+
+$('create').addEventListener('click', () => { if (!busy && player && !ready) send({action:'create', consent:true}); });
+$('check').addEventListener('click', () => send({action:'load'}));
+$('new').addEventListener('click', () => { if (!player) return; send({action:'new', requestId:uid()}); });
+
+$('guess-form').addEventListener('submit', e => {
+  e.preventDefault();
+  if (busy) return;
+  const game = current();
+  if (!game || game.status !== 'playing') return;
+  try {
+    const value = parseGuess($('guess').value);
+    send({action:'guess', gameId:game.id, revision:game.revision, value, requestId:uid()});
+  } catch(error) {
+    status(error.message, 'error');
+  }
+});
+
+$('reload').addEventListener('click', () => { if (player && !busy) send({action:'load'}); });
+$('debugToggleBtn').addEventListener('click', () => { isDebugOn = !isDebugOn; updateDebugUI(); });
+
+render();
+if (!online) status('本機無法直接執行 GAS，請部署至雲端執行。', 'error');
+if (online) send({action:'load'});
+</script></body></html>
