@@ -38,8 +38,8 @@
   </div>
 
   <script>
-    // 已更新為你提供的最新 Apps Script 部署 API 網址
-    const GAS_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnQ4S-fXG5gFTKvBvZtoT74F1V2PacIJnx7ni0S-W4i8OohcehJbIX85cc0NlZ0w5FCW9WOh_ey5b7yo7l4h94MavCjK49V9MpNzmJSWt4jdHrDj9r_cdLH3_14RDTGtATuVM9xnrnpivOZsHzNfm9P33hYQSGF2mN64OKeLVp1ckx8pjwK2vmtD29jTZ8PXGANxMdPSlKudQyRTIXVtkhkM6Vy3i2-zRB-kUjUD3mFhAD8vS4oH_822wY2IupUg0Ekc8_wcoe_yS7jtreNH2PP9wcVkJQ&lib=M6GdG6v223W4XhStTXgOA4CZ9_ecy5sDx";
+    // 已完整綁定你的 Apps Script 正式部署網址
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzoRMKIlQ2xYtM1XlUMCL43snuLaBEoJA6uM03s7bw8avELC9VRr4P8bc4tx4d8dZaK/exec";
 
     let player = "";
     let rounds = [];
@@ -47,14 +47,12 @@
 
     async function callApi(action, extraData = {}) {
       try {
-        // 若為 load 或 new 動作，改用 GET 帶參數以完美避開跨域與 302 重新導向限制
         if (action === 'load' || action === 'new') {
-          let res = await fetch(`${GAS_URL}&action=${action}`);
+          let res = await fetch(`${GAS_URL}?action=${action}`);
           let data = await res.json();
           return data;
         }
 
-        // 針對 guess 動作維持 POST 請求
         let res = await fetch(GAS_URL, {
           method: "POST",
           redirect: "follow",
@@ -97,7 +95,7 @@
         const requested = res.selectedId || selectedId;
         selectedId = rounds.some(r => r.id === requested) ? requested : (rounds[rounds.length - 1] || {}).id || null;
         
-        // 收到資料後立刻隱藏初始閘道，解鎖遊戲主面板
+        // 收到資料後立刻隱藏初始畫面，解鎖遊戲面板
         document.getElementById('gateCard').style.display = 'none';
         document.getElementById('gameCard').style.display = 'block';
         
