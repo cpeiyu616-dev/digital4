@@ -14,7 +14,7 @@
     input { width: calc(100% - 22px); padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 18px; text-align: center; margin-bottom: 15px; letter-spacing: 4px; }
     .msg { margin-top: 15px; font-weight: bold; color: #38bdf8; padding: 10px; border-radius: 8px; background: #0f172a; font-size: 14px; }
     .error { color: #f43f5e !important; }
-    .tag { display: inline-block; padding: 6px 12px; background: #334155; border-radius: 6px; font-size: 13px; color: #38bdf8; margin-bottom: 15px; }
+    .tag { display: inline-block; padding: 6px 12px; background: #334155; border-radius: 6px; font-size: 13px; color: #38bdf8; margin-bottom: 15px; word-break: break-all; }
     .notice { padding: 14px; background: #334155; border-radius: 8px; font-size: 13px; color: #cbd5e1; text-align: left; margin-bottom: 20px; line-height: 1.5; }
     details { background: #0f172a; border-radius: 8px; margin: 10px 0; text-align: left; padding: 10px; border: 1px solid #334155; }
     summary { cursor: pointer; font-weight: bold; color: #38bdf8; }
@@ -41,8 +41,8 @@
   <!-- 遊戲主畫面（保留你原本喜歡的深色精美介面與互動按鈕） -->
   <div class="card" id="gameCard" style="display:none;">
     <h1>幾A幾B大挑戰</h1>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-      <span id="playerCode" class="tag" style="margin-bottom:0;"></span>
+    <div style="display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 15px; gap: 8px;">
+      <span id="playerCode" class="tag" style="margin-bottom:0; width: 100%; text-align: left;"></span>
       <a id="sheetLink" href="#" target="_blank" style="color: #38bdf8; font-size: 13px; text-decoration: none;" hidden>開啟我的試算表 ↗</a>
     </div>
     
@@ -142,6 +142,7 @@
       return;
     }
 
+    // 這裡直接採用後端透過 Session 抓到的真實 Google 帳號 Email
     player = res.code;
     ready = res.ready;
     rounds = res.rounds || [];
