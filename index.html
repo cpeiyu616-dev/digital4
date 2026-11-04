@@ -25,9 +25,9 @@
   <div class="card" id="gateCard">
     <h1>幾A幾B大挑戰</h1>
     <p class="notice">
-      <b>版本四雲端說明：</b>這個遊戲會自動連線你的 Google 帳號。第一次建立存檔時，會在你目前帳號的雲端硬碟新增一份私人 Google 試算表來記錄你的遊戲歷程！
+      <b>版本四雲端說明：</b>正在透過 GitHub 連線您的雲端個人試算表。
     </p>
-    <div id="statusMsg" class="msg">正在透過雲端確認您的 Google 帳號與存檔狀態...</div>
+    <div id="statusMsg" class="msg">正在與雲端建立連線...</div>
     <div id="identity" class="tag" style="margin-top: 10px;">尚未確認帳號</div>
     
     <div id="createSection" style="display:none; margin-top: 20px;">
@@ -63,7 +63,7 @@
 </main>
 
 <script>
-  // 已精準對應你的最新 Apps Script 正式部署網址
+  // 填入你最新的 Apps Script 正式部署網址
   const GAS_URL = "https://script.google.com/macros/s/AKfycbySghPOkZctyiM5nXh2SkIROJLyW9QwxF7eoNPFUYilZK5-vGOXkusZqJ6onbe_i1h9/exec";
 
   let ready = false;
@@ -75,15 +75,32 @@
     return 'req-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
   }
 
-  async function callApi(action, extraData = {}) {
-    try {
-      let payload = encodeURIComponent(JSON.stringify({ action: action, ...extraData }));
-      let res = await fetch(`${GAS_URL}?data=${payload}`);
-      let data = await res.json();
-      return data;
-    } catch (err) {
-      return { ok: false, error: err.toString() };
-    }
+  // 完美繞過 CORS 的 JSONP 請求核心
+  function callApi(action, extraData = {}) {
+    return new Promise((resolve) => {
+      const callbackName = 'jsonp_cb_' + Math.random().toString(36).substring(2, 9);
+      const payload = encodeURIComponent(JSON.stringify({ action: action, ...extraData }));
+      
+      window[callbackName] = function(data) {
+        delete window[callbackName];
+        if (scriptNode && scriptNode.parentNode) {
+          scriptNode.parentNode.removeChild(scriptNode);
+        }
+        resolve(data);
+      };
+
+      const scriptNode = document.createElement('script');
+      scriptNode.src = `${GAS_URL}?data=${payload}&callback=${callbackName}`;
+      scriptNode.onerror = function() {
+        delete window[callbackName];
+        if (scriptNode && scriptNode.parentNode) {
+          scriptNode.parentNode.removeChild(scriptNode);
+        }
+        resolve({ ok: false, error: "連線至 Google 雲端失敗，請確認網路或重新整理。" });
+      };
+      
+      document.body.appendChild(scriptNode);
+    });
   }
 
   async function checkLoad() {
@@ -130,7 +147,7 @@
   function handleResponse(res) {
     if (!res || !res.ok) {
       let statusEl = document.getElementById('statusMsg');
-      statusEl.innerText = "錯誤：" + (res ? res.error : "連線失敗。請確認您已登入 Google 帳號");
+      statusEl.innerText = "錯誤：" + (res ? res.error : "連線失敗");
       statusEl.className = "msg error";
       return;
     }
