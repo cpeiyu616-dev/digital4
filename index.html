@@ -25,9 +25,9 @@
   <div class="card" id="gateCard">
     <h1>幾A幾B大挑戰</h1>
     <p class="notice">
-      <b>版本四雲端說明：</b>這個遊戲使用 Google 授權。第一次建立存檔時，會在你目前帳號的雲端硬碟新增一份私人 Google 試算表；不會自動分享給其他玩家或老師。
+      <b>版本四雲端說明：</b>這個遊戲會自動連線你的 Google 帳號。第一次建立存檔時，會在你目前帳號的雲端硬碟新增一份私人 Google 試算表來記錄你的遊戲歷程！
     </p>
-    <div id="statusMsg" class="msg">正在確認 Google 帳號與存檔狀態...</div>
+    <div id="statusMsg" class="msg">正在透過雲端確認您的 Google 帳號與存檔狀態...</div>
     <div id="identity" class="tag" style="margin-top: 10px;">尚未確認帳號</div>
     
     <div id="createSection" style="display:none; margin-top: 20px;">
@@ -41,7 +41,7 @@
     <h1>幾A幾B大挑戰</h1>
     <div style="display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 15px; gap: 8px;">
       <span id="playerCode" class="tag" style="margin-bottom:0; width: 100%; text-align: left;"></span>
-      <a id="sheetLink" href="#" target="_blank" style="color: #38bdf8; font-size: 13px; text-decoration: none;" hidden>開啟我的試算表 ↗</a>
+      <a id="sheetLink" href="#" target="_blank" style="color: #38bdf8; font-size: 13px; text-decoration: none;" hidden>開啟我的雲端試算表 ↗</a>
     </div>
     
     <div id="roundTitle" style="font-weight: bold; font-size: 16px; margin: 15px 0; color: #f8fafc;"></div>
@@ -63,7 +63,8 @@
 </main>
 
 <script>
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbzoRMKIlQ2xYtM1XlUMCL43snuLaBEoJA6uM03s7bw8avELC9VRr4P8bc4tx4d8dZaK/exec";
+  // 已精準對應你的最新 Apps Script 正式部署網址
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbySghPOkZctyiM5nXh2SkIROJLyW9QwxF7eoNPFUYilZK5-vGOXkusZqJ6onbe_i1h9/exec";
 
   let ready = false;
   let player = "";
@@ -76,7 +77,6 @@
 
   async function callApi(action, extraData = {}) {
     try {
-      // 透過 GET 傳遞請求內容，確保 Google 授權與帳號身分不遺失
       let payload = encodeURIComponent(JSON.stringify({ action: action, ...extraData }));
       let res = await fetch(`${GAS_URL}?data=${payload}`);
       let data = await res.json();
@@ -130,7 +130,7 @@
   function handleResponse(res) {
     if (!res || !res.ok) {
       let statusEl = document.getElementById('statusMsg');
-      statusEl.innerText = "錯誤：" + (res ? res.error : "連線失敗");
+      statusEl.innerText = "錯誤：" + (res ? res.error : "連線失敗。請確認您已登入 Google 帳號");
       statusEl.className = "msg error";
       return;
     }
