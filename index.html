@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>幾A幾B大挑戰・雲端版</title>
+  <title>幾A幾B大挑戰・雲端個人版</title>
   <style>
     body { font-family: sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
     .card { background: #1e293b; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 550px; text-align: center; margin-bottom: 20px; }
@@ -10,10 +10,12 @@
     p { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
     button { background: #0284c7; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%; margin-top: 10px; transition: background 0.2s; }
     button:hover { background: #0369a1; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
     input { width: calc(100% - 22px); padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 18px; text-align: center; margin-bottom: 15px; letter-spacing: 4px; }
-    .msg { margin-top: 15px; font-weight: bold; color: #38bdf8; padding: 10px; border-radius: 8px; background: #0f172a; }
+    .msg { margin-top: 15px; font-weight: bold; color: #38bdf8; padding: 10px; border-radius: 8px; background: #0f172a; font-size: 14px; }
     .error { color: #f43f5e !important; }
-    .tag { display: inline-block; padding: 4px 10px; background: #334155; border-radius: 6px; font-size: 13px; color: #38bdf8; margin-bottom: 15px; }
+    .tag { display: inline-block; padding: 6px 12px; background: #334155; border-radius: 6px; font-size: 13px; color: #38bdf8; margin-bottom: 15px; }
+    .notice { padding: 14px; background: #334155; border-radius: 8px; font-size: 13px; color: #cbd5e1; text-align: left; margin-bottom: 20px; line-height: 1.5; }
     details { background: #0f172a; border-radius: 8px; margin: 10px 0; text-align: left; padding: 10px; border: 1px solid #334155; }
     summary { cursor: pointer; font-weight: bold; color: #38bdf8; }
   </style>
@@ -21,43 +23,49 @@
 <body>
 <main style="width: 100%; max-width: 550px;">
 
-  <!-- 初始建立存檔閘道畫面 -->
+  <!-- 初始建立存檔閘道畫面（符合版本四授權與說明規範） -->
   <div class="card" id="gateCard">
     <h1>幾A幾B大挑戰</h1>
-    <p id="statusMsg" class="msg">正在確認 Google 帳號與雲端狀態...</p>
-    <div id="identity" class="tag">尚未確認帳號</div>
-    <div id="createSection" style="display:none;">
-      <p style="font-size:13px; color:#94a3b8;">首次使用將在你的 Google 雲端硬碟建立專屬私人試算表來保存紀錄。</p>
+    <p class="notice">
+      <b>版本四雲端說明：</b>這個遊戲使用 Google 授權。第一次建立存檔時，會在你目前帳號的雲端硬碟新增一份私人 Google 試算表；不會自動分享給其他玩家或老師。
+    </p>
+    <div id="statusMsg" class="msg">正在確認 Google 帳號與存檔狀態...</div>
+    <div id="identity" class="tag" style="margin-top: 10px;">尚未確認帳號</div>
+    
+    <div id="createSection" style="display:none; margin-top: 20px;">
       <button onclick="createSave()" style="background:#10b981;">建立我的遊戲存檔</button>
     </div>
     <button onclick="checkLoad()" style="background:#334155; margin-top:10px;">重新確認帳號與存檔</button>
   </div>
 
-  <!-- 遊戲主畫面 -->
+  <!-- 遊戲主畫面（保留你原本喜歡的深色精美介面與互動按鈕） -->
   <div class="card" id="gameCard" style="display:none;">
     <h1>幾A幾B大挑戰</h1>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-      <span id="playerCode" class="tag"></span>
-      <a id="sheetLink" href="#" target="_blank" style="color: #38bdf8; font-size: 13px;">開啟我的試算表 ↗</a>
+      <span id="playerCode" class="tag" style="margin-bottom:0;"></span>
+      <a id="sheetLink" href="#" target="_blank" style="color: #38bdf8; font-size: 13px; text-decoration: none;" hidden>開啟我的試算表 ↗</a>
     </div>
-    <div id="roundTitle" style="font-weight: bold; font-size: 18px; margin-bottom: 15px; color: #f8fafc;"></div>
+    
+    <div id="roundTitle" style="font-weight: bold; font-size: 16px; margin: 15px 0; color: #f8fafc;"></div>
     
     <div style="margin: 20px 0;">
-      <input type="text" id="guessInput" maxlength="4" autocomplete="off" placeholder="4位不重複數字">
+      <input type="text" id="guessInput" maxlength="4" autocomplete="off" placeholder="輸入4位不重複數字">
       <button id="submitBtn" onclick="makeGuess()">送出猜測</button>
     </div>
     
     <button onclick="newGame()" style="background:#334155;">開新局（保留舊局）</button>
-    <div id="gameMsg" class="msg">請輸入 4 位不重複數字開始挑戰！</div>
+    <button onclick="checkLoad()" style="background:#1e293b; border: 1px solid #475569; font-size: 14px; padding: 8px;">重新讀取雲端</button>
+    
+    <div id="gameMsg" class="msg" style="margin-top: 15px;">遊戲已準備就緒！</div>
 
-    <!-- 歷史歷程 -->
-    <div id="historyBox" style="margin-top:20px; max-height:200px; overflow-y:auto;"></div>
+    <!-- 歷史歷程與局數切換專區 -->
+    <div id="historyBox" style="margin-top:20px; max-height:220px; overflow-y:auto; text-align: left;"></div>
   </div>
 
 </main>
 
 <script>
-  // 請確認這裡填入你最新的以 /exec 結尾的正式網址
+  // 請確認這裡填入你在 Google Apps Script 部署成功後取得的 /exec 正式網址
   const GAS_URL = "https://script.google.com/macros/s/AKfycbzoRMKIlQ2xYtM1XlUMCL43snuLaBEoJA6uM03s7bw8avELC9VRr4P8bc4tx4d8dZaK/exec";
 
   let ready = false;
@@ -69,6 +77,7 @@
     return 'req-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
   }
 
+  // 透過跨域 fetch 呼叫版本四的 Google Apps Script 後端 API
   async function callApi(action, extraData = {}) {
     try {
       let res = await fetch(GAS_URL, {
@@ -84,13 +93,13 @@
   }
 
   async function checkLoad() {
-    document.getElementById('statusMsg').innerText = "連線載入中...";
+    document.getElementById('statusMsg').innerText = "正在讀取雲端資料…";
     let res = await callApi('load');
     handleResponse(res);
   }
 
   async function createSave() {
-    document.getElementById('statusMsg').innerText = "正在建立個人試算表...";
+    document.getElementById('statusMsg').innerText = "正在建立個人試算表，請稍候…";
     let res = await callApi('create', { consent: true });
     handleResponse(res);
   }
@@ -101,13 +110,22 @@
   }
 
   async function makeGuess() {
-    let val = document.getElementById('guessInput').value;
-    if (!val || val.length !== 4) {
+    let val = document.getElementById('guessInput').value.trim();
+    if (!val || val.length !== 4 || !/^\d{4}$/.test(val)) {
       let msg = document.getElementById('gameMsg');
       msg.innerText = "請輸入剛好 4 位數字！";
       msg.className = "msg error";
       return;
     }
+    // 檢查是否有重複數字
+    let set = new Set(val.split(''));
+    if (set.size !== 4) {
+      let msg = document.getElementById('gameMsg');
+      msg.innerText = "4位數字不能重複！";
+      msg.className = "msg error";
+      return;
+    }
+
     let game = rounds.find(r => r.id === selectedId);
     if (!game) return;
 
@@ -131,7 +149,7 @@
     document.getElementById('identity').innerText = "Google 帳號：" + player;
 
     if (!ready) {
-      // 尚未建立存檔，停在閘道畫面並顯示建立按鈕
+      // 尚未建立存檔：停留在閘道畫面，顯示老師規定的「建立我的遊戲存檔」按鈕
       document.getElementById('gateCard').style.display = 'block';
       document.getElementById('gameCard').style.display = 'none';
       document.getElementById('statusMsg').innerText = res.message;
@@ -140,13 +158,15 @@
       return;
     }
 
-    // 已準備好，進入遊戲主畫面
+    // 已準備好：進入你原本設計的遊戲主畫面
     document.getElementById('gateCard').style.display = 'none';
     document.getElementById('gameCard').style.display = 'block';
-    document.getElementById('playerCode').innerText = "帳號：" + player;
+    document.getElementById('playerCode').innerText = "Google 帳號：" + player;
 
     if (res.sheetUrl) {
-      document.getElementById('sheetLink').href = res.sheetUrl;
+      let sheetLink = document.getElementById('sheetLink');
+      sheetLink.href = res.sheetUrl;
+      sheetLink.hidden = false;
     }
 
     const requested = res.selectedId || selectedId;
@@ -170,7 +190,7 @@
       roundTitle.innerText = "目前沒有進行中的遊戲";
       guessInput.disabled = true;
       submitBtn.disabled = true;
-      historyBox.innerHTML = "<p style='color:#94a3b8; font-size:13px;'>請點擊下方「開新局」開始挑戰！</p>";
+      historyBox.innerHTML = "<p style='color:#94a3b8; font-size:13px; text-align:center;'>目前尚無遊戲紀錄，請點擊上方「開新局」開始挑戰！</p>";
       return;
     }
 
@@ -179,22 +199,27 @@
     guessInput.disabled = !isPlaying;
     submitBtn.disabled = !isPlaying;
 
-    // 渲染歷史與歷程
-    let html = "<b style='color:#38bdf8; font-size:14px;'>歷史紀錄與切換：</b><br>";
+    // 渲染歷史與歷程選單
+    let html = "<b style='color:#38bdf8; font-size:14px;'>雲端遊玩歷史與切換：</b><br>";
+    html += "<div style='display:flex; flex-wrap:wrap; gap:6px; margin: 8px 0;'>";
     [...rounds].reverse().forEach(r => {
-      let activeStyle = r.id === selectedId ? "background:#0284c7; color:white;" : "background:#1e293b; color:#cbd5e1;";
-      html += `<button onclick="selectRound('${r.id}')" style="margin:4px 0; padding:6px; font-size:13px; text-align:left; ${activeStyle}">
-        第 ${r.number} 局 [${r.status === 'won' ? '已完成' : '進行中'}] - ${r.guesses.length} 次猜測
+      let activeStyle = r.id === selectedId ? "background:#0284c7; color:white; border:1px solid #38bdf8;" : "background:#0f172a; color:#cbd5e1; border:1px solid #334155;";
+      html += `<button onclick="selectRound('${r.id}')" style="width:auto; padding:6px 12px; font-size:12px; margin-top:0; ${activeStyle}">
+        第 ${r.number} 局 (${r.status === 'won' ? '已完成' : '進行中'})
       </button>`;
     });
+    html += "</div>";
 
     if (game.guesses.length > 0) {
-      html += "<br><br><b style='color:#38bdf8; font-size:14px;'>當前局猜測歷程：</b><br>";
+      html += "<br><b style='color:#38bdf8; font-size:14px;'>第 " + game.number + " 局猜測歷程：</b><br>";
       game.guesses.forEach(g => {
-        html += `<div style="font-size:13px; color:#cbd5e1; padding:4px 0; border-bottom:1px solid #334155;">
-          第 ${g.order} 次：<b>${g.value}</b> &rarr; <span style="color:#38bdf8; font-weight:bold;">${g.result}</span>
+        html += `<div style="font-size:13px; color:#cbd5e1; padding:6px 8px; border-bottom:1px solid #334155; display:flex; justify-content:space-between;">
+          <span>第 ${g.order} 次：<b>${g.value}</b></span>
+          <span style="color:#38bdf8; font-weight:bold;">${g.result}</span>
         </div>`;
       });
+    } else {
+      html += "<p style='color:#94a3b8; font-size:13px; margin-top:10px;'>此局尚未有猜測紀錄。</p>";
     }
     historyBox.innerHTML = html;
   }
@@ -204,7 +229,7 @@
     renderGame();
   }
 
-  // 網頁開啟時自動觸發讀取
+  // 網頁開啟時自動呼叫驗證與載入
   window.onload = function() {
     checkLoad();
   };
