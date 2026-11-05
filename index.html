@@ -2,248 +2,268 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>幾A幾B大挑戰・雲端個人版</title>
   <style>
-    body { font-family: sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .card { background: #1e293b; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 550px; text-align: center; margin-bottom: 20px; }
-    h1 { margin-bottom: 10px; font-size: 24px; color: #38bdf8; }
+    body { font-family: sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
+    .card { background: #1e293b; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 550px; text-align: center; margin-bottom: 20px; box-sizing: border-box; }
+    h1 { margin: 0 0 10px; font-size: 24px; color: #38bdf8; }
     p { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
     button { background: #0284c7; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%; margin-top: 10px; transition: background 0.2s; }
     button:hover { background: #0369a1; }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
-    input { width: calc(100% - 22px); padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 18px; text-align: center; margin-bottom: 15px; letter-spacing: 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 18px; text-align: center; margin-bottom: 5px; letter-spacing: 4px; }
     .msg { margin-top: 15px; font-weight: bold; color: #38bdf8; padding: 10px; border-radius: 8px; background: #0f172a; font-size: 14px; }
     .error { color: #f43f5e !important; }
-    .tag { display: inline-block; padding: 6px 12px; background: #334155; border-radius: 6px; font-size: 13px; color: #38bdf8; margin-bottom: 15px; word-break: break-all; }
+    .tag { display: inline-block; padding: 6px 12px; background: #334155; border-radius: 6px; font-size: 13px; color: #38bdf8; word-break: break-all; }
     .notice { padding: 14px; background: #334155; border-radius: 8px; font-size: 13px; color: #cbd5e1; text-align: left; margin-bottom: 20px; line-height: 1.5; }
+    #googleBtn { display: flex; justify-content: center; margin-top: 15px; min-height: 44px; }
+    .row { font-size: 13px; color: #cbd5e1; padding: 6px 8px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; }
+    .row span.r { color: #38bdf8; font-weight: bold; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+    .chip { width: auto; padding: 6px 12px; font-size: 12px; margin-top: 0; background: #0f172a; color: #cbd5e1; border: 1px solid #334155; }
+    .chip.active { background: #0284c7; color: white; border-color: #38bdf8; }
   </style>
 </head>
 <body>
-<main style="width: 100%; max-width: 550px;">
+<main style="width:100%; max-width:550px;">
 
-  <!-- 初始建立存檔閘道畫面 -->
+  <!-- 登入畫面 -->
   <div class="card" id="gateCard">
     <h1>幾A幾B大挑戰</h1>
-    <p class="notice">
-      <b>版本四雲端說明：</b>請點擊下方按鈕開始連線您的雲端個人試算表。
-    </p>
-    <div id="statusMsg" class="msg">已準備就緒，請點擊下方按鈕連線</div>
-    <div id="identity" class="tag" style="margin-top: 10px;">尚未確認帳號</div>
-    
-    <div id="createSection" style="display:none; margin-top: 20px;">
-      <button onclick="createSave()" style="background:#10b981;">建立我的遊戲存檔</button>
+    <div class="notice">
+      請使用 Google 帳號登入。系統會自動辨識你的帳號，並把遊玩紀錄存到雲端試算表，下次登入會自動讀回。
     </div>
-    <button id="connectBtn" onclick="checkLoad()" style="background:#0284c7; margin-top:10px;">連線至雲端並讀取紀錄</button>
+    <div id="googleBtn"></div>
+    <div id="statusMsg" class="msg">正在載入 Google 登入…</div>
   </div>
 
-  <!-- 遊戲主畫面 -->
+  <!-- 遊戲畫面 -->
   <div class="card" id="gameCard" style="display:none;">
     <h1>幾A幾B大挑戰</h1>
-    <div style="display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 15px; gap: 8px;">
-      <span id="playerCode" class="tag" style="margin-bottom:0; width: 100%; text-align: left;"></span>
-      <a id="sheetLink" href="#" target="_blank" style="color: #38bdf8; font-size: 13px; text-decoration: none;" hidden>開啟我的雲端試算表 ↗</a>
+    <div style="text-align:left; margin-bottom:10px;">
+      <span id="playerCode" class="tag"></span>
     </div>
-    
-    <div id="roundTitle" style="font-weight: bold; font-size: 16px; margin: 15px 0; color: #f8fafc;"></div>
-    
-    <div style="margin: 20px 0;">
-      <input type="text" id="guessInput" maxlength="4" autocomplete="off" placeholder="輸入4位不重複數字">
+
+    <div id="roundTitle" style="font-weight:bold; font-size:16px; margin:15px 0;"></div>
+
+    <div style="margin:20px 0;">
+      <input type="text" id="guessInput" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="輸入4位不重複數字">
       <button id="submitBtn" onclick="makeGuess()">送出猜測</button>
     </div>
-    
-    <button onclick="newGame()" style="background:#334155;">開新局（保留舊局）</button>
-    <button onclick="checkLoad()" style="background:#1e293b; border: 1px solid #475569; font-size: 14px; padding: 8px;">重新讀取雲端</button>
-    
-    <div id="gameMsg" class="msg" style="margin-top: 15px;">遊戲已準備就緒！</div>
 
-    <!-- 歷史歷程與局數切換專區 -->
-    <div id="historyBox" style="margin-top:20px; max-height:220px; overflow-y:auto; text-align: left;"></div>
+    <button id="newBtn" onclick="newGame()" style="background:#334155;">開新局（保留舊局）</button>
+    <button id="reloadBtn" onclick="loadData()" style="background:#1e293b; border:1px solid #475569; font-size:14px; padding:8px;">重新讀取雲端</button>
+
+    <div id="gameMsg" class="msg">遊戲已準備就緒！</div>
+    <div id="historyBox" style="margin-top:20px; max-height:260px; overflow-y:auto; text-align:left;"></div>
   </div>
 
 </main>
 
 <script>
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbwcj20MFqNK4VMDA0uS_JUpu1Y8W8Q4EHk7kUsvid-HehzXgf1wotrAazxFo8RGUqXp/exec";
+  // ===== 設定區：請填入你自己的值 =====
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbzxprYgU7HQx5xn2F_m8HItP11BsakK8DLbcN3CiVujkjyZsl5MLEZ-Ro75ipjxq-3T/exec";
+  const CLIENT_ID = "請貼上你的OAuth用戶端ID.apps.googleusercontent.com";
+  // ====================================
 
-  let ready = false;
-  let player = "";
+  let idToken = "";
   let rounds = [];
   let selectedId = null;
+  let busy = false;
+
+  const $ = id => document.getElementById(id);
 
   function uid() {
-    return 'req-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+    return 'req-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
   }
 
-  // 附帶 10 秒逾時保護的 JSONP 請求
-  function callApi(action, extraData = {}) {
-    return new Promise((resolve) => {
-      const callbackName = 'jsonp_cb_' + Math.random().toString(36).substring(2, 9);
-      const payload = encodeURIComponent(JSON.stringify({ action: action, ...extraData }));
-      
-      let timer = setTimeout(() => {
-        cleanup();
-        resolve({ ok: false, error: "連線逾時。請確認 Apps Script 部署權限是否設為「任何人」，或點擊下方網址先授權一次。" });
-      }, 10000);
+  function setStatus(text, isError) {
+    const el = $('statusMsg');
+    el.textContent = text;
+    el.className = 'msg' + (isError ? ' error' : '');
+  }
 
-      function cleanup() {
-        clearTimeout(timer);
-        delete window[callbackName];
-        if (scriptNode && scriptNode.parentNode) {
-          scriptNode.parentNode.removeChild(scriptNode);
-        }
-      }
+  function setGameMsg(text, isError) {
+    const el = $('gameMsg');
+    el.textContent = text || '';
+    el.className = 'msg' + (isError ? ' error' : '');
+  }
 
-      window[callbackName] = function(data) {
-        cleanup();
-        resolve(data);
-      };
+  function setBusy(value) {
+    busy = value;
+    ['submitBtn', 'newBtn', 'reloadBtn'].forEach(id => { $(id).disabled = value; });
+    if (!value) renderGame();
+  }
 
-      const scriptNode = document.createElement('script');
-      scriptNode.src = `${GAS_URL}?data=${payload}&callback=${callbackName}`;
-      
-      scriptNode.onerror = function() {
-        cleanup();
-        resolve({ ok: false, error: "連線至 Google 雲端失敗，請確認網路。" });
-      };
-      
-      document.body.appendChild(scriptNode);
+  // ---------- 呼叫後端（POST + text/plain，不會觸發 CORS 預檢） ----------
+  async function callApi(action, extra) {
+    try {
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        body: JSON.stringify(Object.assign({ action: action, idToken: idToken }, extra || {}))
+      });
+      return await res.json();
+    } catch (err) {
+      return { ok: false, error: '連線失敗，請確認網路，以及 Apps Script 已部署為「任何人」可存取。' };
+    }
+  }
+
+  // ---------- Google 登入 ----------
+  function initGoogle() {
+    if (!window.google || !google.accounts || !google.accounts.id) {
+      setStatus('Google 登入載入失敗，請重新整理頁面。', true);
+      return;
+    }
+    google.accounts.id.initialize({
+      client_id: CLIENT_ID,
+      callback: onCredential,
+      auto_select: true
     });
+    google.accounts.id.renderButton($('googleBtn'), { theme: 'filled_blue', size: 'large', text: 'signin_with', locale: 'zh-TW' });
+    google.accounts.id.prompt();
+    setStatus('請使用 Google 帳號登入');
   }
 
-  async function checkLoad() {
-    document.getElementById('statusMsg').innerText = "正在讀取雲端資料…";
-    let res = await callApi('load');
-    handleResponse(res);
+  async function onCredential(response) {
+    idToken = response.credential;
+    setStatus('正在讀取雲端資料…');
+    await loadData();
   }
 
-  async function createSave() {
-    document.getElementById('statusMsg').innerText = "正在建立個人試算表，請稍候…";
-    let res = await callApi('create', { consent: true });
-    handleResponse(res);
+  function backToLogin(message) {
+    idToken = "";
+    rounds = [];
+    selectedId = null;
+    $('gameCard').style.display = 'none';
+    $('gateCard').style.display = 'block';
+    setStatus(message || '請使用 Google 帳號登入', !!message);
+  }
+
+  // ---------- 動作 ----------
+  async function loadData() {
+    if (busy) return;
+    busy = true;
+    handleResponse(await callApi('load'));
+    busy = false;
+    if ($('gameCard').style.display !== 'none') renderGame();
   }
 
   async function newGame() {
-    let res = await callApi('new', { requestId: uid() });
-    handleResponse(res);
+    if (busy) return;
+    setBusy(true);
+    handleResponse(await callApi('new', { requestId: uid() }));
+    setBusy(false);
   }
 
   async function makeGuess() {
-    let val = document.getElementById('guessInput').value.trim();
-    if (!val || val.length !== 4 || !/^\d{4}$/.test(val)) {
-      let msg = document.getElementById('gameMsg');
-      msg.innerText = "請輸入剛好 4 位數字！";
-      msg.className = "msg error";
-      return;
-    }
-    let set = new Set(val.split(''));
-    if (set.size !== 4) {
-      let msg = document.getElementById('gameMsg');
-      msg.innerText = "4位數字不能重複！";
-      msg.className = "msg error";
-      return;
-    }
+    if (busy) return;
+    const val = $('guessInput').value.trim();
+    if (!/^\d{4}$/.test(val)) { setGameMsg('請輸入剛好 4 位數字！', true); return; }
+    if (new Set(val.split('')).size !== 4) { setGameMsg('4 位數字不能重複！', true); return; }
 
-    let game = rounds.find(r => r.id === selectedId);
+    const game = rounds.find(r => r.id === selectedId);
     if (!game) return;
 
-    let res = await callApi('guess', { gameId: game.id, revision: game.revision, value: val, requestId: uid() });
-    document.getElementById('guessInput').value = "";
+    setBusy(true);
+    const res = await callApi('guess', { gameId: game.id, revision: game.revision, value: val, requestId: uid() });
+    $('guessInput').value = '';
     handleResponse(res);
+    setBusy(false);
+    if (!$('guessInput').disabled) $('guessInput').focus();
   }
 
   function handleResponse(res) {
     if (!res || !res.ok) {
-      let statusEl = document.getElementById('statusMsg');
-      statusEl.innerText = "錯誤：" + (res ? res.error : "連線失敗");
-      statusEl.className = "msg error";
+      const msg = '錯誤：' + (res && res.error ? res.error : '連線失敗');
+      if (res && res.auth) { backToLogin(msg); return; }
+      if ($('gameCard').style.display === 'none') setStatus(msg, true);
+      else setGameMsg(msg, true);
       return;
     }
 
-    player = res.code;
-    ready = res.ready;
     rounds = res.rounds || [];
-    
-    document.getElementById('identity').innerText = "Google 帳號：" + player;
-
-    if (!ready) {
-      document.getElementById('gateCard').style.display = 'block';
-      document.getElementById('gameCard').style.display = 'none';
-      document.getElementById('statusMsg').innerText = res.message;
-      document.getElementById('statusMsg').className = "msg";
-      document.getElementById('createSection').style.display = 'block';
-      return;
-    }
-
-    document.getElementById('gateCard').style.display = 'none';
-    document.getElementById('gameCard').style.display = 'block';
-    document.getElementById('playerCode').innerText = "Google 帳號：" + player;
-
-    if (res.sheetUrl) {
-      let sheetLink = document.getElementById('sheetLink');
-      sheetLink.href = res.sheetUrl;
-      sheetLink.hidden = false;
-    }
+    $('gateCard').style.display = 'none';
+    $('gameCard').style.display = 'block';
+    $('playerCode').textContent = 'Google 帳號：' + res.code;
 
     const requested = res.selectedId || selectedId;
-    selectedId = rounds.some(r => r.id === requested) ? requested : (rounds[rounds.length - 1] || {}).id || null;
+    selectedId = rounds.some(r => r.id === requested)
+      ? requested
+      : ((rounds[rounds.length - 1] || {}).id || null);
 
     renderGame();
-    
-    let msgEl = document.getElementById('gameMsg');
-    msgEl.innerText = res.message || "";
-    msgEl.className = "msg";
+    setGameMsg(res.message || '', false);
   }
 
+  // ---------- 畫面 ----------
   function renderGame() {
-    let game = rounds.find(r => r.id === selectedId);
-    let roundTitle = document.getElementById('roundTitle');
-    let historyBox = document.getElementById('historyBox');
-    let guessInput = document.getElementById('guessInput');
-    let submitBtn = document.getElementById('submitBtn');
+    const game = rounds.find(r => r.id === selectedId);
+    const historyBox = $('historyBox');
+    historyBox.textContent = '';
 
     if (!game) {
-      roundTitle.innerText = "目前沒有進行中的遊戲";
-      guessInput.disabled = true;
-      submitBtn.disabled = true;
-      historyBox.innerHTML = "<p style='color:#94a3b8; font-size:13px; text-align:center;'>目前尚無遊戲紀錄，請點擊上方「開新局」開始挑戰！</p>";
+      $('roundTitle').textContent = '目前沒有進行中的遊戲';
+      $('guessInput').disabled = true;
+      $('submitBtn').disabled = true;
+      const p = document.createElement('p');
+      p.style.textAlign = 'center';
+      p.textContent = '目前尚無遊戲紀錄，請點擊上方「開新局」開始挑戰！';
+      historyBox.appendChild(p);
       return;
     }
 
-    let isPlaying = game.status === 'playing';
-    roundTitle.innerHTML = `第 ${game.number} 局 ｜ 狀態：<b>${isPlaying ? '進行中' : '已通關！'}</b>`;
-    guessInput.disabled = !isPlaying;
-    submitBtn.disabled = !isPlaying;
+    const playing = game.status === 'playing';
+    $('roundTitle').textContent = `第 ${game.number} 局 ｜ 狀態：${playing ? '進行中' : '已通關！答案 ' + (game.answer || '')}`;
+    $('guessInput').disabled = !playing || busy;
+    $('submitBtn').disabled = !playing || busy;
 
-    let html = "<b style='color:#38bdf8; font-size:14px;'>雲端遊玩歷史與切換：</b><br>";
-    html += "<div style='display:flex; flex-wrap:wrap; gap:6px; margin: 8px 0;'>";
-    [...rounds].reverse().forEach(r => {
-      let activeStyle = r.id === selectedId ? "background:#0284c7; color:white; border:1px solid #38bdf8;" : "background:#0f172a; color:#cbd5e1; border:1px solid #334155;";
-      html += `<button onclick="selectRound('${r.id}')" style="width:auto; padding:6px 12px; font-size:12px; margin-top:0; ${activeStyle}">
-        第 ${r.number} 局 (${r.status === 'won' ? '已完成' : '進行中'})
-      </button>";
+    const title = document.createElement('b');
+    title.style.cssText = 'color:#38bdf8; font-size:14px;';
+    title.textContent = '雲端遊玩歷史與切換：';
+    historyBox.appendChild(title);
+
+    const chips = document.createElement('div');
+    chips.className = 'chips';
+    rounds.slice().reverse().forEach(r => {
+      const b = document.createElement('button');
+      b.className = 'chip' + (r.id === selectedId ? ' active' : '');
+      b.textContent = `第 ${r.number} 局 (${r.status === 'won' ? '已完成' : '進行中'})`;
+      b.onclick = () => { selectedId = r.id; renderGame(); };
+      chips.appendChild(b);
     });
-    html += "</div>";
+    historyBox.appendChild(chips);
 
-    if (game.guesses.length > 0) {
-      html += "<br><b style='color:#38bdf8; font-size:13px;'>第 " + game.number + " 局猜測歷程：</b><br>";
-      game.guesses.forEach(g => {
-        html += `<div style="font-size:13px; color:#cbd5e1; padding:6px 8px; border-bottom:1px solid #334155; display:flex; justify-content:space-between;">
-          <span>第 ${g.order} 次：<b>${g.value}</b></span>
-          <span style="color:#38bdf8; font-weight:bold;">${g.result}</span>
-        </div>`;
-      });
+    const sub = document.createElement('b');
+    sub.style.cssText = 'color:#38bdf8; font-size:13px;';
+    sub.textContent = `第 ${game.number} 局猜測歷程：`;
+    historyBox.appendChild(sub);
+
+    if (game.guesses.length === 0) {
+      const p = document.createElement('p');
+      p.style.cssText = 'font-size:13px; margin-top:10px;';
+      p.textContent = '此局尚未有猜測紀錄。';
+      historyBox.appendChild(p);
     } else {
-      html += "<p style='color:#94a3b8; font-size:13px; margin-top:10px;'>此局尚未有猜測紀錄。</p>";
+      game.guesses.forEach(g => {
+        const row = document.createElement('div');
+        row.className = 'row';
+        const left = document.createElement('span');
+        left.textContent = `第 ${g.order} 次：${g.value}`;
+        const right = document.createElement('span');
+        right.className = 'r';
+        right.textContent = g.result;
+        row.appendChild(left);
+        row.appendChild(right);
+        historyBox.appendChild(row);
+      });
     }
-    historyBox.innerHTML = html;
   }
 
-  function selectRound(id) {
-    selectedId = id;
-    renderGame();
-  }
-
-  // 移除自動執行，改由使用者手動點擊按鈕觸發，避免畫面死鎖
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.activeElement === $('guessInput')) makeGuess();
+  });
 </script>
+<script src="https://accounts.google.com/gsi/client" async defer onload="initGoogle()"></script>
 </body>
 </html>
