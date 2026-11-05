@@ -75,7 +75,7 @@
     return 'req-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
   }
 
-  // 完美繞過 CORS 的 JSONP 請求核心
+  // 完美繞過 CORS 的 JSONP 請求核心（已修復回呼對應機制）
   function callApi(action, extraData = {}) {
     return new Promise((resolve) => {
       const callbackName = 'jsonp_cb_' + Math.random().toString(36).substring(2, 9);
@@ -91,6 +91,7 @@
 
       const scriptNode = document.createElement('script');
       scriptNode.src = `${GAS_URL}?data=${payload}&callback=${callbackName}`;
+      
       scriptNode.onerror = function() {
         delete window[callbackName];
         if (scriptNode && scriptNode.parentNode) {
@@ -205,40 +206,4 @@
     let isPlaying = game.status === 'playing';
     roundTitle.innerHTML = `第 ${game.number} 局 ｜ 狀態：<b>${isPlaying ? '進行中' : '已通關！'}</b>`;
     guessInput.disabled = !isPlaying;
-    submitBtn.disabled = !isPlaying;
-
-    let html = "<b style='color:#38bdf8; font-size:14px;'>雲端遊玩歷史與切換：</b><br>";
-    html += "<div style='display:flex; flex-wrap:wrap; gap:6px; margin: 8px 0;'>";
-    [...rounds].reverse().forEach(r => {
-      let activeStyle = r.id === selectedId ? "background:#0284c7; color:white; border:1px solid #38bdf8;" : "background:#0f172a; color:#cbd5e1; border:1px solid #334155;";
-      html += `<button onclick="selectRound('${r.id}')" style="width:auto; padding:6px 12px; font-size:12px; margin-top:0; ${activeStyle}">
-        第 ${r.number} 局 (${r.status === 'won' ? '已完成' : '進行中'})
-      </button>`;
-    });
-    html += "</div>";
-
-    if (game.guesses.length > 0) {
-      html += "<br><b style='color:#38bdf8; font-size:14px;'>第 " + game.number + " 局猜測歷程：</b><br>";
-      game.guesses.forEach(g => {
-        html += `<div style="font-size:13px; color:#cbd5e1; padding:6px 8px; border-bottom:1px solid #334155; display:flex; justify-content:space-between;">
-          <span>第 ${g.order} 次：<b>${g.value}</b></span>
-          <span style="color:#38bdf8; font-weight:bold;">${g.result}</span>
-        </div>`;
-      });
-    } else {
-      html += "<p style='color:#94a3b8; font-size:13px; margin-top:10px;'>此局尚未有猜測紀錄。</p>";
-    }
-    historyBox.innerHTML = html;
-  }
-
-  function selectRound(id) {
-    selectedId = id;
-    renderGame();
-  }
-
-  window.onload = function() {
-    checkLoad();
-  };
-</script>
-</body>
-</html>
+    submitBtn.
